@@ -15,11 +15,20 @@ def readValue ( channelNum ):
 
 
 
-def saveValue ( devName , channelName , timestamp , value ):
-    "Saves the specified value to the database"
+def saveValue ( devName , data ):
+    "Saves the specified values to the database"
 
-    payload = channelName + ",device=" + devName  + " value=" + str(value) + " " + repr(timestamp)
-    payload = payload[:-1]
+    payload = ""
+
+    for dataPoint in data:
+        channelName = dataPoint[0]
+        timestamp   = dataPoint[1]
+        value       = dataPoint[2]
+        payload += channelName + ",device=" + devName  + " value=" + str(value) + " " + repr(timestamp)
+        payload = payload[:-1] + "\n" #Remove 'L' in long int representation of timestamp and add newline char
+
+    payload = payload[:-1] #Remove last newline char
+    
     
     try:
         r = requests.post('http://192.168.0.105:8086/write?db=eDAQ&precision=ms',data=payload)
@@ -51,12 +60,14 @@ channelNames = getChannelNames(devName)
 
 
 while 1:
+    data = []
 
     for (i, channelName) in enumerate(channelNames):
 
         (timestamp , value) = readValue(i)
+        data.append((channelName, timestamp, value))
         
-        saveValue(devName, channelName, timestamp, value)
+    saveValue(devName, data)
 
 
 
