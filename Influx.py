@@ -14,11 +14,13 @@ def saveValues ( devName , data ):
 
     payload = payload[:-1] #Remove last newline char
     
-    
+    errorCode = 0    
+
     try:
-        r = requests.post('http://192.168.0.105:8086/write?db=eDAQ&precision=ms',data=payload)
+        r = requests.post('http://192.168.0.105:8086/write?db=eDAQ&precision=ms', data=payload, timeout=1)
     except:
+        errorCode = 1
         pass
 
-    return
+    return errorCode
 

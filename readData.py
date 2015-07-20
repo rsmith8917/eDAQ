@@ -8,6 +8,8 @@ MAC = get_mac()
 
 postTime = 10 #seconds
 
+maxBufferLength = 100000
+
 devName = getDevName(MAC)
 
 channelNames = getChannelNames(devName)
@@ -22,12 +24,23 @@ while 1:
 
         (timestamp , value) = readValue(i)
         data.append((channelName, timestamp, value))
-    
+
+        
     if ((time() - starttime) > postTime):
-        saveValues(devName, data)
-        data = []
+
+        errorCode = saveValues(devName, data)
+
+        if errorCode == 0:
+
+            data = []
+
+        elif len(data) > maxBufferLength:
+
+            overflow = (len(data) - maxBufferLength)
+            data = data[overflow:]
+
         starttime = time()
 
-
+    print str(len(data))
 
 
